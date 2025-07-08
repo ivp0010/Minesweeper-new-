@@ -2,6 +2,7 @@
 #include <iostream>
 #include "board.h"
 #include "zones.h"
+#include "cellManager.h"
 
 void build_board(sf::RenderWindow &window, board &b);
 int set_window_size(sf::RenderWindow &window);
@@ -15,6 +16,7 @@ int main()
 	int size = set_window_size(window);
 	board b(size);
 	zones z(size);
+	cellManager c(size);
 	window.clear(sf::Color::White);
 	build_board(window, b);
 	window.display();
