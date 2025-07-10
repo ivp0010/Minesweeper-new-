@@ -5,6 +5,11 @@
 #include <vector>
 #include "graph.h"
 #include "cell.h"
+#include "ctime"
+#include <unistd.h>
+#include <algorithm>
+#include <random>
+#include <chrono>
 
 typedef struct cordniates
 {
@@ -16,6 +21,7 @@ class cellManager
 	public:
 		
 		cellManager(int size);
+		void init_cells(int firstClick, int size);
 		void draw_assets(sf::RenderWindow &window);
 		void check_cell(int index, char type);
 		void start_break(int index, std::vector<int> &seen);
