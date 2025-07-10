@@ -3,24 +3,32 @@
 #include "board.h"
 #include "zones.h"
 #include "cellManager.h"
+#include <ctime>
 
 void build_board(sf::RenderWindow &window, board &b);
 int set_window_size(sf::RenderWindow &window);
 int check_zones(sf::Vector2f mouse_pos, zones &z, int size);
+void end_game_loss(sf::RenderWindow &window, cellManager &c, board &b);
+
+sf::Color grey((uint8_t)128, (uint8_t)128, (uint8_t)128, (uint8_t)255);
 
 int main()
 {
 
 	sf::RenderWindow window(sf::VideoMode(500, 900), "minesweeper", sf::Style::Resize | sf::Style::Close);
-	window.clear(sf::Color::White);
+	window.clear(grey);
 	int size = set_window_size(window);
+	srand(time(NULL));
 	board b(size);
 	zones z(size);
 	cellManager c(size);
-	window.clear(sf::Color::White);
+	window.clear(grey);
 	build_board(window, b);
+	c.draw_assets(window);
 	window.display();
 	srand(time(NULL));
+	bool first = true;
+	bool click = false;
 
 	while(window.isOpen())
 	{
@@ -39,24 +47,38 @@ int main()
 		{
 			sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 			int pos = check_zones(mousePos, z, size);
-			std::cout << pos << std::endl;
+
+			if(first)
+			{
+				c.init_cells(pos, size);
+				first = false;
+			}
+			
+			c.check_cell(pos, 'l');
+			click = true;
 		}
-		/*
 		else if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Right)
 		{
-			sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));			
-			int pos = checkZones(mousePos, z);
-			s.checkCell(pos, 'r');
+		sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));			
+		int pos = check_zones(mousePos, z, size);
+			c.check_cell(pos, 'r');
+			click = true;
 		}
 		
-		if(!first)
+		if(c.get_game_state())
 		{
-			if(s.getGameState()){break;}
-			window.clear(sf::Color::White);
-			drawBoard(window, b);
-			s.drawAssets(window);
+			end_game_loss(window, c, b);
+			break;
+		}
+
+		if(!(first) && click)
+		{
+			window.clear(grey);
+			c.draw_assets(window);
+			build_board(window, b);
 			window.display();
-		}*/
+			click = false;
+		}
 	}
 
 
@@ -68,7 +90,6 @@ void build_board(sf::RenderWindow &window, board &b)
 	for(unsigned int i = 0; i < b.get_size(); i++)
 	{
 		window.draw(*(b.get_board(i)));
-		std::cout << b.get_board(i)->getPosition().x << ", " << b.get_board(i)->getPosition().y << std::endl;
 	}
 }
 
@@ -124,7 +145,7 @@ int set_window_size(sf::RenderWindow &window)
 	text_L->setPosition(large->getPosition().x + 100.f, large->getPosition().y + 75.f);
 
 	
-	window.clear(sf::Color::White);
+	window.clear(grey);
 	window.draw(*small);
 	window.draw(*med);
 	window.draw(*large);
@@ -184,4 +205,83 @@ int check_zones(sf::Vector2f mouse_pos, zones &z, int size)
 	}
 return NULL;
 }
+
+void end_game_loss(sf::RenderWindow &window, cellManager &c, board &b)
+{
+	for(int i = 0; i < 10; i++)
+	{
+		window.clear(grey);
+		c.draw_assets(window);
+		build_board(window, b);
+		window.display();
+		usleep(100000);
+		window.clear(grey);
+		c.draw_bomb(window);
+		c.draw_assets(window);
+		build_board(window, b);
+		window.display();
+		usleep(100000);
+	}
+
+	window.clear(grey);
+	c.show_bombs(window);
+	c.draw_assets(window);
+	build_board(window, b);
+	window.display();
+	sleep(1);
+	
+	sf::Font font;
+	font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf");
+	sf::Text text;
+	sf::FloatRect bound;
+	text.setString("3");
+	text.setCharacterSize(100);
+	text.setFont(font);
+	bound = text.getLocalBounds();
+	text.setOrigin(bound.left + bound.width / 2.0, bound.top + bound.height / 2.0);
+	text.setFillColor(sf::Color::Black);
+	sf::Texture texture;
+	texture.loadFromFile("/home/zaiah/Minesweeper/sprites/boom.png");
+	sf::Sprite sprite;
+	sprite.setTexture(texture);
+	bound = sprite.getLocalBounds();
+	sprite.setOrigin(bound.left + bound.width / 2.0, bound.top + bound.height / 2.0);
+	sprite.setScale(4.f, 4.f);
+
+	window.close();
+	window.create(sf::VideoMode(400.f, 900.f), "BOOM 3");
+	text.setPosition(window.getSize().x / 2.0, window.getSize().y / 2.0);
+	window.clear(sf::Color::White);
+	window.draw(text);
+	window.display();
+	sleep(1);
+	text.setString("2");
+	window.close();
+	window.create(sf::VideoMode(400.f, 900.f), "BOOM 2");
+	window.clear(sf::Color::White);
+	window.draw(text);
+	window.display();
+	sleep(1);
+	window.close();
+	text.setString("1");
+	window.create(sf::VideoMode(400.f, 900.f), "BOOM 1");
+	window.clear(sf::Color::White);
+	window.draw(text);
+	window.display();
+	sleep(1);
+	window.close();
+	window.create(sf::VideoMode(900.f, 900.f), "BOOOOOOM!!!!!");
+	sprite.setPosition(window.getSize().x / 2.0, window.getSize().y / 2.0);
+	text.setString("GAME OVER YOU LOSE");
+	text.setPosition(window.getSize().x / 2.0, window.getSize().y / 2.0);
+	window.clear(sf::Color::White);
+	window.draw(sprite);
+	window.draw(text);
+	window.display();
+	sleep(2);
+
+	return;
+}
+
+
 

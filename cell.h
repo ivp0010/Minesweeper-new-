@@ -18,11 +18,17 @@ class cell
 		sf::Text get_num();
 		sf::RectangleShape get_block();
 		void start_break();
+		void set_flag();
+		sf::Sprite get_flag();
+		void set_bomb();
+		sf::Sprite get_bomb();
+		void reveal();
 
 	private:
 		
 		char type;
 		int size;
+		sf::Texture texture;
 		sf::Sprite sprite;
 		int numAdjBomb;
 		sf::RectangleShape block;

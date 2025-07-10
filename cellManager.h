@@ -25,18 +25,19 @@ class cellManager
 		void draw_assets(sf::RenderWindow &window);
 		void check_cell(int index, char type);
 		void start_break(int index, std::vector<int> &seen);
-		void set_flag(int index);
 		bool get_game_state();
-		void draw_bomb(int index, sf::RenderWindow &window);
+		void draw_bomb(sf::RenderWindow &window);
 		void break_block(int index);
 		int check_index(int nx, int ny, int size);
 		cords get_cords(int index, int size);
+		void show_bombs(sf::RenderWindow &window);
 
 	private:
 
 		graph* connect;
 		std::vector<cell*> store;
 		bool gameOver;
+		int bombIndex;
 
 };
 
