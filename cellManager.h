@@ -31,6 +31,8 @@ class cellManager
 		int check_index(int nx, int ny, int size);
 		cords get_cords(int index, int size);
 		void show_bombs(sf::RenderWindow &window);
+		void show_flags(sf::RenderWindow &window);
+		bool check_win();
 
 	private:
 

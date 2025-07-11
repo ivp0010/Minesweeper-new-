@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
 #include <iostream>
 #include "board.h"
 #include "zones.h"
@@ -9,6 +10,7 @@ void build_board(sf::RenderWindow &window, board &b);
 int set_window_size(sf::RenderWindow &window);
 int check_zones(sf::Vector2f mouse_pos, zones &z, int size);
 void end_game_loss(sf::RenderWindow &window, cellManager &c, board &b);
+void end_game_win(sf::RenderWindow &window, cellManager &c, board &b);
 
 sf::Color grey((uint8_t)128, (uint8_t)128, (uint8_t)128, (uint8_t)255);
 
@@ -68,6 +70,12 @@ int main()
 		if(c.get_game_state())
 		{
 			end_game_loss(window, c, b);
+			break;
+		}
+		
+		if(!(first) && c.check_win())
+		{
+			end_game_win(window, c, b);
 			break;
 		}
 
@@ -247,7 +255,7 @@ void end_game_loss(sf::RenderWindow &window, cellManager &c, board &b)
 	bound = sprite.getLocalBounds();
 	sprite.setOrigin(bound.left + bound.width / 2.0, bound.top + bound.height / 2.0);
 	sprite.setScale(4.f, 4.f);
-
+	
 	window.close();
 	window.create(sf::VideoMode(400.f, 900.f), "BOOM 3");
 	text.setPosition(window.getSize().x / 2.0, window.getSize().y / 2.0);
@@ -269,11 +277,13 @@ void end_game_loss(sf::RenderWindow &window, cellManager &c, board &b)
 	window.draw(text);
 	window.display();
 	sleep(1);
+
 	window.close();
 	window.create(sf::VideoMode(900.f, 900.f), "BOOOOOOM!!!!!");
 	sprite.setPosition(window.getSize().x / 2.0, window.getSize().y / 2.0);
 	text.setString("GAME OVER YOU LOSE");
-	text.setPosition(window.getSize().x / 2.0, window.getSize().y / 2.0);
+	text.setPosition((window.getSize().x / 2.0) - 275.f, window.getSize().y / 2.0);
+	text.setCharacterSize(50);
 	window.clear(sf::Color::White);
 	window.draw(sprite);
 	window.draw(text);
@@ -281,6 +291,42 @@ void end_game_loss(sf::RenderWindow &window, cellManager &c, board &b)
 	sleep(2);
 
 	return;
+}
+
+void end_game_win(sf::RenderWindow &window, cellManager &c, board &b)
+{
+	for(int i = 0; i < 10; i++)
+	{
+		window.clear(grey);
+		c.draw_assets(window);
+		build_board(window, b);
+		window.display();
+		usleep(100000);
+		window.clear(grey);
+		c.show_flags(window);
+		c.draw_assets(window);
+		build_board(window, b);
+		window.display();
+		usleep(100000);
+	}	
+	
+	sf::Font font;
+	font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf");
+	sf::Text text;
+	sf::FloatRect bound;
+	text.setString("YOU WIN!");
+	text.setCharacterSize(100);
+	text.setFont(font);
+	bound = text.getLocalBounds();
+	text.setOrigin(bound.left + bound.width / 2.0, bound.top + bound.height / 2.0);
+	text.setPosition(window.getSize().x / 2.0, window.getSize().y / 2.0);
+	text.setFillColor(sf::Color::Black);
+	window.clear(sf::Color::White);
+	window.draw(text);
+	window.display();
+	sleep(3);
+	window.close();
+
 }
 
 

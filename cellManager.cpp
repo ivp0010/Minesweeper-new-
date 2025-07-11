@@ -218,11 +218,6 @@ void cellManager::draw_bomb(sf::RenderWindow &window)
 	window.draw(store[bombIndex]->get_bomb());
 }
 
-void cellManager::break_block(int index)
-{
-
-}
-
 void cellManager::show_bombs(sf::RenderWindow &window)
 {
 	for(int i = 0; i < store.size(); i++)
@@ -233,4 +228,32 @@ void cellManager::show_bombs(sf::RenderWindow &window)
 			window.draw(store[i]->get_bomb());
 		}
 	}
+}
+
+void cellManager::show_flags(sf::RenderWindow &window)
+{
+	for(int i = 0; i < store.size(); i++)
+	{
+		if(store[i]->get_type() == 'b')
+		{
+			store[i]->set_flag();
+		}
+	}
+}
+
+bool cellManager::check_win()
+{
+	for(int i = 0; i < store.size(); i++)
+	{
+		if(store[i]->get_type() == 'b')
+		{
+			if(store[i]->get_flag_set() == false)
+			{
+				return false;
+			}
+		}
+
+	}
+
+	return true;
 }
